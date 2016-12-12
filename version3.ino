@@ -3,11 +3,13 @@ struct node
     double x;
     double y;
     int dir[8]={0};
-                                  //   bool visited=0;
+    int dir_node[8]={-1};                              //   bool visited=0;
   };
 int nodes_discovered=0,
     ang=0,
-    curr_node;                      
+    curr_node=0,
+    prev_node=0,
+    prev_angle=0;                      
 double  x_coord=0,
         y_coord=0,
         x2_coord=0,
@@ -29,7 +31,7 @@ bool  sensorval[4],
       upast=0,
       tpast=0,
       run_mode=0;
-node junctions[22];
+node junctions[20];
 /*void intersection();
  bool not_visited();
   void init_node();
@@ -480,6 +482,7 @@ void intersection()
       delay(100);
       gaadirun(0,0);
      }*/
+     prev_node=curr_node;
      new_node=1;
      bool is_junc=0;
      char val;
@@ -557,7 +560,11 @@ void intersection()
    //  while(Serial.available()==0);
  //    Serial.read();
      //delay(1000);
-    
+     if((is_junc==1)&&(prev_node!=0)&&(curr_node!=0)) //curr_node condition not really needed
+     {
+      junctions[prev_node-1].dir_node[(prev_angle/45)%8]=curr_node-1;
+      junctions[curr_node-1].dir_node[(ang/45+4)%8]=prev_node-1;
+     }
      if(val == 'l')
      {
         if(diag_left==1)
@@ -573,6 +580,10 @@ void intersection()
           {
             if (is_junc==1) junctions[curr_node-1].dir[(ang/45+6)%8]++;
             ang=(ang+270)%360;
+           }
+          if(tpast==0)
+          {
+            prev_angle=ang;
            }
         if(straight==1) turn_left(dd);
         else lu_turn(dd);
@@ -593,6 +604,10 @@ void intersection()
            if(is_junc==1)  junctions[curr_node-1].dir[(ang/45+2)%8]++;
               ang=(ang+90)%360;
           }
+          if(tpast==0)
+          {
+            prev_angle=ang;
+           }
           if(straight==1) 
               turn_right(dd);
           else 
@@ -601,12 +616,20 @@ void intersection()
      else if(val=='s')
      {
        if(is_junc==1) junctions[curr_node-1].dir[(ang/45)%8]++;
+        if(tpast==0)
+          {
+            prev_angle=ang;
+           }
         return;
      }
      else if(val=='p')
      {
       if(is_junc==1)junctions[curr_node-1].dir[(ang/45+4)%8]++;
       ang=(ang+180)%360;
+      if(tpast==0)
+          {
+            prev_angle=ang;
+           }
       return;
      }
          /*   
@@ -811,6 +834,12 @@ bool not_visited()
 {
   //if(nodes_discovered==0) 
     //  return 1;
+    if(junctions[prev_node].dir_node[prev_angle/45 %8]!=-1)
+    {
+      curr_node=junctions[prev_node].dir_node[prev_angle/45 %8]+1;
+      new_node=0;
+   return 0; 
+    }
    double min_dist=100000000,temp;
    int min_node=-1;
    bool flag=0;
