@@ -3,7 +3,7 @@ struct node
     double x;
     double y;
     int dir[8]={0};
-                                  //   bool visited=0;
+                                  //   struct for an intersection node
   };
 int nodes_discovered=0,
     ang=0,
@@ -62,24 +62,17 @@ void setup()
   state_enc2=0;
   Serial.begin(9600); 
   
- // while(!Serial.available());
- // char b=Serial.read();
- // Serial.flush();
-  //Serial.flush();
- // Serial.read();
+ 
   
   while( digitalRead(A3)==0 );
-  //while(digitalRead(A3)==1);
-  // Serial.print("Delay_time=");
-  //Serial.println(map(analogRead(A0),0,1023,170,250));
-  //delay(100);
+  
   
   delay(500);
   
-  //randomSeed(analogRead(A1));
+  
  
 }
-void read_values()
+void read_values()  //read input from all IR sensors
 {
   sensorval[0]=!digitalRead(11);
   sensorval[1]=!digitalRead(10);
@@ -92,7 +85,6 @@ void read_values()
  
 void loop() 
 {
-   //starter:
   
    read_values();
    if(digitalRead(13)!=state_enc)
@@ -183,10 +175,9 @@ void loop()
   {
     ang=(ang+180)%360;
     upast=1;
-     //  Serial.println("Aasdasdas");
+
     u_turn(); 
-    //Serial.print("x_coordi");Serial.println(x_coord);
-    //Serial.print("y_coordi");Serial.println(y_coord);
+    
   }
   if(lsensorval==1 || rsensorval==1) 
   {
@@ -202,17 +193,13 @@ void loop()
       y_coord = junctions[curr_node-1].y;
       x2_coord = junctions[curr_node-1].x;
       y2_coord = junctions[curr_node-1].y;
-    //  Serial.println("safsfafahvaikfbasf");
+    
     }
-     intersection();
- //     upast=0;
+     intersection();  //we have arrived at an intersection
+ 
  }
  delay(10);
- /*if(lsensorval ==0 && rsensorval==0 && fsensorval==0 && sensorval[0]==0 && sensorval[1]==0 && sensorval[2]==0 && sensorval[3]==0)
-  {
-    gaadirun(-150,-150);
-    delay(1000); 
-  }*/
+
  
 }
 
@@ -231,10 +218,7 @@ void intersection()
   
   start:
   
-  Serial.print("fsensor=");Serial.println(fsensorval);
-  Serial.print("rsensor=");Serial.println(rsensorval);
-  Serial.print("lsensor=");Serial.println(lsensorval);
-  Serial.println();
+  // now we will determine all the turns available at this intersection
   if(lsensorval==1 && fsensorval==1 && rsensorval==1)
   {    
           left_turn=1;
@@ -249,8 +233,6 @@ void intersection()
                   delay(250);
                   gaadirun(0,0);
                   digitalWrite(A5,HIGH);
-                  //delay(1000);
-                  //digitalWrite(ledPin,LOW);
                   while(digitalRead(A3)==0);
                   digitalWrite(A5,LOW);
                   run_mode=1;
@@ -299,21 +281,18 @@ void intersection()
               if(rsensorval==1)
               { 
                   rtemp=1; 
-                 // Serial.print("FIRSTL");Serial.println();
+                 
               }
               if(sensorval[0]==1 && sensorval[1]==1)
                   break;
           }
-          //delay(10);
           while(rtemp==0)
           {
               read_values();
               if(rsensorval==1)
               { 
                   rtemp=1;
-                  //Serial.print("SECONDL");Serial.println();
               }
-             // rsensorval=rtemp; 
               if(fsensorval==1)
               {   
                   straight=1;
@@ -335,7 +314,6 @@ void intersection()
          {
             diag_right=1;
             straight=0;
-             //Serial.print("THIRDL");Serial.println();
          }
          else if(fsensorval==1)
             straight=1;
@@ -361,9 +339,6 @@ void intersection()
               if(lsensorval==1) 
               {
                 ltemp=1;    
-                //gaadirun(0,0);
-               // Serial.print("FIRST");Serial.println();
-                //delay(10000);
               }
               if(sensorval[2]==1 && sensorval[3]==1)
                 break;
@@ -374,9 +349,6 @@ void intersection()
               if(lsensorval==1)
               {
                   ltemp=1;
-                  //gaadirun(0,0);
-                 // Serial.print("SECOND");Serial.println();
-                 // delay(10000);
               }
              if (fsensorval==1)
              {
@@ -401,8 +373,6 @@ void intersection()
           {
               diag_left=1;
               straight=0;
-              //gaadirun(0,0);
-              //Serial.print("THIRD");Serial.println();
           }
           else if(fsensorval==1)
               straight=1;
@@ -429,7 +399,6 @@ void intersection()
               if (lsensorval==1) 
               {
                   diag_left=1;
-                  //Serial.print("FIRST");Serial.println();
                   break;
               }
           }
@@ -442,7 +411,6 @@ void intersection()
         straight=1;
         if(sensorval[0]==0&&sensorval[1]==0&&sensorval[2]==0&&sensorval[3]==0&&fsensorval==0) straight=0;  
      else straight=1;
-     /*if(rsensorval=1) diag_right=1;*/
      if(lsensorval==1)
      {
         diag_left=1;
@@ -452,113 +420,42 @@ void intersection()
        diag_right=1;
      }
      if(diag_left==1||diag_right==1) straight=0;
-     //if(left_turn==1&&straight==0&&diag_right==0&&right_turn==0) {
-     // delay(5000);
-      
-    // }
-    /* if((straight==1)&&((right_turn==1)||(left_turn==1))) 
-     {
-      gaadirun(150,150);
-      delay(250);
-      gaadirun(0,0);
-     }
-     else if((right_turn)==1&&(left_turn==1))
-     {
-      gaadirun(150,150);
-      delay(250);
-      gaadirun(0,0);
-     }
-     if(straight==0 && left_turn==1 && diag_right==0)
-     {
-      gaadirun(150,150);
-      delay(200);
-      gaadirun(0,0);
-     }
-     else if(right_turn==0&& diag_left==1)
-     {
-      gaadirun(150,150);
-      delay(100);
-      gaadirun(0,0);
-     }*/
      new_node=1;
      bool is_junc=0;
      char val;
      if((straight&&left_turn)||(straight&&right_turn)||(straight&&diag_left)||(straight&&diag_right)||(diag_left&&diag_right)||(diag_left&&right_turn)||(diag_right&&left_turn)||(left_turn&&right_turn))
      {
-      //tpast=0;
-      is_junc=1;
+      is_junc=1;  //the intersection is a junction, meaning there are more than one route possible (due to limited memory, we are storing only these)
      if(run_mode==0)
      {
-     if(not_visited())
+     if(not_visited()) //if node has not already been discovered, initialise new node 
       {
         nodes_discovered++; 
         init_node();
         curr_node=nodes_discovered;
       } 
-      //prev_node=curr_node;
       upast=0;
-     tpast=0;
+     tpast=0; //these counters are to keep track of uturns and turns where junction was not found(only one way)
      if(junctions[curr_node-1].dir[(ang/45+4)%8]<3) junctions[curr_node-1].dir[(ang/45+4)%8]++;
      val=choose_turn();
      }
      else
     {
-      val=get_next_direction();
+      val=get_next_direction();  //find out which next direction to choose, based on directions already taken in the past (stored in the node structure)
       is_junc=0;
     }
      }
      else 
      {
      tpast=1;
-    val=choose_turn();
+    val=choose_turn(); //if visiting for first time, this function is called
     is_junc=0;
     }
     
-     Serial.print("left_turn=");Serial.println(left_turn);
-     Serial.print("diag_left=");Serial.println(diag_left);
-     Serial.print("straight=");Serial.println(straight);
-     Serial.print("diag_right=");Serial.println(diag_right);
-     Serial.print("right_turn=");Serial.println(right_turn);
-    // Serial.print("fsensor=");Serial.println(fsensorval);
-    // Serial.print("rsensor=");Serial.println(rsensorval);
-    // Serial.print("lsensor=");Serial.println(lsensorval);
-    // Serial.print("ltemp=");Serial.println(ltemp);
-     Serial.println();
-     Serial.print("nodes discovered=");Serial.println(nodes_discovered);
-     Serial.print("Angle=");Serial.println(ang);
-     Serial.print("x coordinate=");Serial.println(junctions[curr_node-1].x);
-     Serial.print("y coordinate=");Serial.println(junctions[curr_node-1].y);
-     Serial.print("angle0=");Serial.println(junctions[curr_node-1].dir[0]);
-     Serial.print("angle45=");Serial.println(junctions[curr_node-1].dir[1]);
-     Serial.print("angle90=");Serial.println(junctions[curr_node-1].dir[2]);
-     Serial.print("angle135=");Serial.println(junctions[curr_node-1].dir[3]);
-     Serial.print("angle180=");Serial.println(junctions[curr_node-1].dir[4]);
-     Serial.print("angle225=");Serial.println(junctions[curr_node-1].dir[5]);
-     Serial.print("angle270=");Serial.println(junctions[curr_node-1].dir[6]);
-     Serial.print("angle315=");Serial.println(junctions[curr_node-1].dir[7]);
     
-     //long randnumber=random(1,100);
-     /* //while (Serial.available() == 0);
-     if(diag_right==0&&right_turn==0){
-     if(straight) val ='s';
-     else val='l';
-     }
-     else  val ='r'; //Serial.read();
-     }
-     else {
-     if(diag_left==0&&left_turn==0){
-     if(straight) val ='s';
-     else val='r';
-     }
-     else  val ='l'; //Serial.read();
-     }
-     dd=0;*/
-     //Serial.flush();
-   //  while(Serial.available()==0);
- //    Serial.read();
-     //delay(1000);
-    
-     if(val == 'l')
+    //now based on value returned by get_next_direction and choose_turn functions, choose appropriate direction
+   //also update current direction and node structure accordingly  
+  if(val == 'l')
      {
         if(diag_left==1)
         {
@@ -609,21 +506,9 @@ void intersection()
       ang=(ang+180)%360;
       return;
      }
-         /*   
-     delay(delay_time);
-     gaadirun(0,0);
-     delay(700);
-     if(rsensorval==1)
-     {
-      turn_right();
-     }
-     else if(lsensorval==1)
-     {
-       turn_left();
-     }*/
-     //return;
+         
 }
-void gaadirun(int a,int b)
+void gaadirun(int a,int b) //function to drive the car 
 {
   if(a>=0)
   {
@@ -647,6 +532,7 @@ void gaadirun(int a,int b)
      digitalWrite(3,0);
   }
 }
+//functions for appropriate turns
 void ru_turn(bool dd)
 {
   if(dd==1) 
@@ -715,9 +601,8 @@ void lu_turn(bool dd)
    if((right_turn==1)||(diag_right==1))
    {
     gaadirun(-100,100);
-  // Serial.print("-150,150");Serial.println();
    }
-   else gaadirun(-100,75);//can be changed
+   else gaadirun(-100,75);
  }
  while(1)
  {
@@ -767,8 +652,7 @@ void turn_left(bool dd)
       if(  sensorval[0]==0 )
         break;
   }
-   state_enc=digitalRead(13);
-  //return;   
+   state_enc=digitalRead(13);   
 } 
 void u_turn()
 {
@@ -784,22 +668,13 @@ void u_turn()
     read_values();
     if(sensorval[2]==1) break;
   }
- /* while(1)
- {
-     read_values();
-     if(sensorval[1]==1 ) 
-       break;
-  } */
+
   state_enc=digitalRead(13);
 }
 void init_node()
 {
   junctions[nodes_discovered-1].x=x3_coord;
   junctions[nodes_discovered-1].y=y3_coord;
-  //  junctions[nodes_discovered-1].visited=1;
-  //Serial.println();
-  //Serial.print("RIGHT_TURN=");Serial.print(right_turn);
-  //Serial.println();
   junctions[nodes_discovered-1].dir[(ang/45)%8]=straight;
   junctions[nodes_discovered-1].dir[(ang/45+1)%8]=diag_right;
   junctions[nodes_discovered-1].dir[(ang/45+2)%8]=right_turn;
@@ -809,18 +684,11 @@ void init_node()
 }
 bool not_visited()
 {
-  //if(nodes_discovered==0) 
-    //  return 1;
    double min_dist=100000000,temp;
    int min_node=-1;
    bool flag=0;
-   Serial.print("upast=");Serial.println(upast);
-   Serial.print("tpast=");Serial.println(tpast);
-   Serial.print("nodes_discovered=");Serial.println(nodes_discovered);
-   Serial.print("curr_node=");Serial.println(curr_node);
   if (upast==1)
       {
-      // tpast=0;
         return 0;
       }
   for(int i=0;i<nodes_discovered;i++)
@@ -829,12 +697,7 @@ bool not_visited()
       Serial.print("continue");Serial.println();
       continue;
     }
-   /* if((junctions[i].x >=x_coord-7)&&(junctions[i].x <=x_coord+7))
-    {
-        if((junctions[i].y >=y_coord-7)&&(junctions[i].y <=y_coord+7))
-        {*/
-            //Serial.println();
-            //Serial.println("Affcfcjjcfcjfcfcfjgcjfcfj");
+ 
          temp=(junctions[i].x-x3_coord)*(junctions[i].x-x3_coord)+(junctions[i].y-y3_coord)*(junctions[i].y-y3_coord);
          if(temp<=85)
          {
@@ -849,15 +712,9 @@ bool not_visited()
               min_dist=temp;
               min_node=i;
              }
-            Serial.print("ALREADY VISITED");
-          /*  Serial.print(x_coord);
-            Serial.print(",");
-            Serial.print(y_coord);
-            Serial.println(")");*/
-            //x_coord=junctions[i].x;
-            //y_coord=junctions[i].y;
-            Serial.print("min_node=");Serial.println(min_node);
-            Serial.print("min_dist=");Serial.println(min_dist);
+            //Serial.print("ALREADY VISITED");
+            //Serial.print("min_node=");Serial.println(min_node);
+            //Serial.print("min_dist=");Serial.println(min_dist);
         }
   }
   if(min_node>-1)
@@ -873,13 +730,13 @@ bool not_visited()
   }
   
 }
+//functions to choose which turn to take next(the crux of the algorithm)
 char choose_turn()
 {
 if(new_node==0)
 {
  if(junctions[curr_node-1].dir[(ang/45+4)%8]==2)
   {
-    //junctions[curr_node-1].dir[(ang/45+4)%8]++;
     if (diag_right==1||right_turn==1)
     {
       ru_turn(0);
@@ -911,8 +768,6 @@ else
    if(right_turn==1||diag_right==1) return 'r';
    else if(straight==1) return 's';
   else if(left_turn==1||diag_left==1) return 'l';
-  //else if(straight==1) return 's';
-  //if(right_turn==1||diag_right==1) return 'r';
   }
 }
 bool exor(int a, bool b)
